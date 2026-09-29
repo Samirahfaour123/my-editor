@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { Editor } from './Editor';
 
 function App() {
-  // حالة المستندات والصفحة الحالية
   const [documents, setDocuments] = useState([
     { id: '1', title: 'الصفحة الرئيسية للمشروع' },
     { id: '2', title: 'ملاحظات الاجتماع الأسبوعي' },
   ]);
   const [activeDocId, setActiveDocId] = useState('1');
 
-  // إضافة مستند جديد
   const handleCreateDoc = () => {
     const newDoc = {
       id: Date.now().toString(),
@@ -23,21 +22,17 @@ function App() {
   const activeDoc = documents.find((doc) => doc.id === activeDocId);
 
   return (
-    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', direction: 'rtl' }}>
+    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', color: '#f8fafc', direction: 'rtl', display: 'flex', flexDirection: 'column' }}>
       <Header docTitle={activeDoc ? activeDoc.title : 'محرر Markdown'} />
-      
-      <div style={{ display: 'flex' }}>
+      <div style={{ display: 'flex', flex: 1, height: 'calc(100vh - 60px)' }}>
         <Sidebar
           documents={documents}
           activeDocId={activeDocId}
           onSelectDoc={(id) => setActiveDocId(id)}
           onCreateDoc={handleCreateDoc}
         />
-        
-        {/* منطقة المحرر الرئيسية (سنضيف شريط الأدوات والمحرر فيها بعد ذلك) */}
-        <main style={{ flex: 1, padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-          <h2>منطقة التحرير والمحتوى 📝</h2>
-          <p>أنتِ الآن تتصفحين: <strong style={{ color: '#38bdf8' }}>{activeDoc?.title}</strong></p>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Editor />
         </main>
       </div>
     </div>
