@@ -1,61 +1,72 @@
-import React, { useRef } from 'react';
+import React from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableHeader from '@tiptap/extension-table-header';
+import TableCell from '@tiptap/extension-table-cell';
+import Placeholder from '@tiptap/extension-placeholder';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
+import { Markdown } from 'tiptap-markdown';
 import { Toolbar } from './Toolbar';
-import { Preview } from './Preview';
+import { MathNode } from './MathExtension';
+
+const lowlight = createLowlight(common);
 
 interface Props { content: string; onChange: (c: string) => void }
 
-export const Editor: React.FC<Props> = ({ content, onChange }) => {
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+type MarkdownStorage = { markdown: { getMarkdown: () => string } };
 
-  const insert = (prefix: string, suffix = '') => {
-    const ta = ref.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = content.slice(start, end) || 'نص جديد';
-    onChange(content.slice(0, start) + prefix + selected + suffix + content.slice(end));
-    setTimeout(() => {
-      ta.focus();
-      ta.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
-    }, 0);
-  };
+export const Editor: React.FC<Props> = ({ content, onChange }) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({ codeBlock: false }),
+      CodeBlockLowlight.configure({ lowlight }),
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      Table,
+      TableRow,
+      TableHeader,
+      TableCell,
+      MathNode,
+      Placeholder.configure({ placeholder: 'اكتب هنا...' }),
+      Markdown.configure({ tightLists: true }),
+    ],
+    content,
+    shouldRerenderOnTransaction: true,
+    editorProps: {
+      attributes: { class: 'editor-content', dir: 'rtl' },
+    },
+    onUpdate: ({ editor }) => {
+      onChange((editor.storage as unknown as MarkdownStorage).markdown.getMarkdown());
+    },
+  });
+
+  if (!editor) return null;
+
+  const text = editor.getText();
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
-      <Toolbar onInsertText={insert} />
-      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
-        <div style={{ width: '50%', display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--border)' }}>
-          <textarea
-            ref={ref}
-            value={content}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="اكتب هنا..."
-            style={{
-              flex: 1,
-              padding: '16px',
-              background: 'var(--bg)',
-              color: 'var(--text)',
-              border: 'none',
-              outline: 'none',
-              fontSize: '16px',
-              fontFamily: 'monospace',
-              resize: 'none',
-              lineHeight: 1.6,
-              direction: 'rtl',
-            }}
-          />
-          <div style={{
-            padding: '6px 16px',
-            background: 'var(--panel)',
-            borderTop: '1px solid var(--border)',
-            color: 'var(--muted)',
-            fontSize: '13px',
-          }}>
-            الكلمات: {words} | الأحرف: {content.length}
-          </div>
-        </div>
-        <Preview content={content} />
+      <Toolbar editor={editor} />
+      <div
+        style={{ flex: 1, overflowY: 'auto', cursor: 'text' }}
+        onClick={(e) => { if (e.target === e.currentTarget) editor.commands.focus('end'); }}
+      >
+        <EditorContent editor={editor} />
+      </div>
+      <div style={{
+        padding: '6px 16px',
+        background: 'var(--panel)',
+        borderTop: '1px solid var(--border)',
+        color: 'var(--muted)',
+        fontSize: '13px',
+      }}>
+        الكلمات: {words} | الأحرف: {text.length}
       </div>
     </div>
   );

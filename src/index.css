@@ -38,34 +38,82 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Markdown */
-.markdown-preview { direction: rtl; text-align: right; line-height: 1.8; }
-.markdown-preview h1 { font-size: 1.8rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-.markdown-preview h2 { font-size: 1.4rem; }
-.markdown-preview h3 { font-size: 1.15rem; color: var(--muted); }
-.markdown-preview ul, .markdown-preview ol { padding-right: 24px; padding-left: 0; }
-.markdown-preview blockquote {
-  border-right: 4px solid var(--accent);
+/* ===== المحرر (WYSIWYG) ===== */
+.editor-content {
+  outline: none;
+  min-height: 60vh;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  line-height: 1.8;
+  direction: rtl;
+  text-align: right;
+}
+
+/* الفقرات والعناوين تأخذ اتجاهها حسب لغتها (عربي RTL / إنجليزي LTR) */
+.editor-content p,
+.editor-content h1,
+.editor-content h2,
+.editor-content h3,
+.editor-content blockquote {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+.editor-content p { margin: 0.5rem 0; }
+.editor-content h1 { font-size: 1.8rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.editor-content h2 { font-size: 1.4rem; }
+.editor-content h3 { font-size: 1.15rem; color: var(--muted); }
+
+/* القوائم: النقطة على اليمين والنص ملتصق بها حتى لو كان إنجليزياً */
+.editor-content ul { list-style: disc; padding-inline-start: 24px; padding-inline-end: 0; }
+.editor-content ol { list-style: decimal; padding-inline-start: 24px; padding-inline-end: 0; }
+.editor-content li { direction: rtl; text-align: right; }
+.editor-content li > p {
+  margin: 0;
+  direction: rtl;
+  unicode-bidi: normal;
+  text-align: right;
+}
+
+/* قوائم المهام */
+.editor-content ul[data-type="taskList"] { list-style: none; padding: 0; }
+.editor-content ul[data-type="taskList"] li { display: flex; gap: 8px; align-items: flex-start; }
+.editor-content ul[data-type="taskList"] li > label { margin-top: 0.45rem; user-select: none; }
+.editor-content ul[data-type="taskList"] li > div { flex: 1; }
+.editor-content ul[data-type="taskList"] ul[data-type="taskList"] { padding-inline-start: 24px; }
+
+/* الاقتباس */
+.editor-content blockquote {
+  border-inline-start: 4px solid var(--accent);
   background: var(--quote-bg);
   padding: 8px 16px;
   margin: 12px 0;
   color: var(--muted);
-  border-radius: 6px 0 0 6px;
+  border-radius: 6px;
 }
-.markdown-preview table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-.markdown-preview th, .markdown-preview td { border: 1px solid var(--border); padding: 8px 12px; text-align: right; }
-.markdown-preview th { background: var(--panel); color: var(--accent); }
-.markdown-preview a { color: var(--accent); }
-.markdown-preview img { max-width: 100%; border-radius: 6px; }
-.markdown-preview hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-.markdown-preview code {
+
+/* الجداول */
+.editor-content table { width: 100%; border-collapse: collapse; margin: 16px 0; table-layout: fixed; }
+.editor-content th, .editor-content td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: start;
+  vertical-align: top;
+}
+.editor-content th { background: var(--panel); color: var(--accent); }
+.editor-content td > p, .editor-content th > p { margin: 0; }
+.editor-content .selectedCell { background: var(--quote-bg); }
+
+/* الكود */
+.editor-content code {
   background: var(--code-bg);
   padding: 2px 6px;
   border-radius: 4px;
   color: var(--accent);
   font-family: monospace;
 }
-.markdown-preview pre {
+.editor-content pre {
   background: var(--code-bg);
   padding: 12px;
   border-radius: 6px;
@@ -73,5 +121,17 @@ body {
   direction: ltr;
   text-align: left;
 }
-.markdown-preview pre code { background: transparent; padding: 0; }
-.markdown-preview .katex { direction: ltr; display: inline-block; }
+.editor-content pre code { background: transparent; padding: 0; color: inherit; }
+
+.editor-content a { color: var(--accent); }
+.editor-content img { max-width: 100%; border-radius: 6px; }
+.editor-content hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+/* نص الـ placeholder */
+.editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  float: inline-start;
+  height: 0;
+  pointer-events: none;
+}

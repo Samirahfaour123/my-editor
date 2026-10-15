@@ -1,0 +1,16 @@
+.math-node {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+  padding: 0 2px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.math-node:hover { background: var(--quote-bg); }
+
+.math-node.display {
+  display: block;
+  text-align: center;
+  margin: 12px 0;
+}
+.math-node .katex-display { margin: 0; }

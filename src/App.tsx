@@ -68,7 +68,13 @@ function App() {
           onCreateDoc={createDoc}
         />
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-          {activeDoc && <Editor content={activeDoc.content} onChange={(c) => update({ content: c })} />}
+          {activeDoc && (
+            <Editor
+              key={activeDoc.id}
+              content={activeDoc.content}
+              onChange={(c) => update({ content: c })}
+            />
+          )}
         </main>
       </div>
     </div>
